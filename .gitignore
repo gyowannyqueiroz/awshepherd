@@ -1,0 +1,7 @@
+/build/
+/gradle/
+.idea/
+.gradle
+/out/
+spring-shell.log
+*.iml

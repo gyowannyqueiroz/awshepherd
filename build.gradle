@@ -1,0 +1,24 @@
+plugins {
+	id 'org.springframework.boot' version '2.1.5.RELEASE'
+	id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.gyo.tools'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.shell:spring-shell-starter:2.0.0.RELEASE'
+	implementation 'io.rest-assured:rest-assured:4.0.0'
+	implementation 'io.rest-assured:rest-assured-all:4.0.0'
+	implementation 'software.amazon.awssdk:core:2.5.62'
+	implementation 'software.amazon.awssdk:s3:2.5.62'
+	implementation 'software.amazon.awssdk:dynamodb:2.5.62'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
