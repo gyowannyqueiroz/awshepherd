@@ -1,13 +1,14 @@
 package com.gyo.tools.aws.cli.service;
 
 import com.gyo.tools.aws.cli.model.CliProfileHolder;
-import com.gyo.tools.aws.cli.util.ShellUtils;
+import com.gyo.tools.aws.cli.util.PrintUtils;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -31,13 +32,13 @@ public class S3Service {
     }
 
     public void listBuckets() {
-        ShellUtils.printSuccess("\nLISTING BUCKETS FOR " + CliProfileHolder.getAwsProfile() + " PROFILE ");
-        ShellUtils.printSuccess("----");
+        PrintUtils.printSuccess("\nLISTING BUCKETS FOR " + CliProfileHolder.getAwsProfile() + " PROFILE ");
+        PrintUtils.printSuccess("----");
         s3Client.listBuckets().buckets()
                 .forEach(bucket ->
-                    ShellUtils.printSuccess("\t" + bucket.name() + " (" + DATE_FORMATTER.format(bucket.creationDate()) + ")")
+                    PrintUtils.printSuccess("\t" + bucket.name() + " (" + DATE_FORMATTER.format(bucket.creationDate()) + ")")
                 );
-        ShellUtils.printSuccess("----");
+        PrintUtils.printSuccess("----");
     }
 
     public void listBucketContent(String bucketName) {
@@ -49,13 +50,13 @@ public class S3Service {
                         .contents()
                         .forEach(item -> {
                             String fileSize = item.key().endsWith("/") ? "" : " - Size: " + item.size();
-                            ShellUtils.printSuccess("\t" + item.key() + fileSize);
+                            PrintUtils.printSuccess("\t" + item.key() + fileSize);
                         });
             } catch (Exception e) {
                 if (e instanceof S3Exception) {
-                    ShellUtils.printError("Bucket not found!");
+                    PrintUtils.printError("Bucket not found!");
                 } else {
-                    ShellUtils.printError(e.getMessage());
+                    PrintUtils.printError(e.getMessage());
                 }
             }
         }
@@ -64,10 +65,10 @@ public class S3Service {
     public void upload(String bucketName, String fileName) {
         try {
             s3Client.putObject(createUploadRequest(bucketName), Path.of(fileName));
-            ShellUtils.printSuccess("Upload done.");
+            PrintUtils.printSuccess("Upload done.");
         } catch(Exception e) {
             if (e instanceof S3Exception) {
-                ShellUtils.printError("Upload failed!");
+                PrintUtils.printError("Upload failed!");
             }
             throw e;
         }
@@ -86,10 +87,10 @@ public class S3Service {
         DeleteBucketRequest deleteBucketRequest = DeleteBucketRequest.builder().bucket(bucket).build();
         try {
             s3Client.deleteBucket(deleteBucketRequest);
-            ShellUtils.printSuccess("Bucket deleted.");
+            PrintUtils.printSuccess("Bucket deleted.");
         } catch (Exception e) {
             if (e instanceof S3Exception) {
-                ShellUtils.printError("Delete failed!");
+                PrintUtils.printError("Delete failed!");
             }
             throw e;
         }
@@ -102,10 +103,10 @@ public class S3Service {
                 .build();
         try {
             s3Client.deleteObject(req);
-            ShellUtils.printSuccess("File deleted.");
+            PrintUtils.printSuccess("File deleted.");
         } catch (Exception e) {
             if (e instanceof S3Exception) {
-                ShellUtils.printError("Delete failed!");
+                PrintUtils.printError("Delete failed!");
             }
             throw e;
         }
@@ -117,13 +118,24 @@ public class S3Service {
                 .builder().bucket(bucketAndPrefix.bucket).build();
         try {
             s3Client.createBucket(createBucketRequest);
-            ShellUtils.printSuccess("Bucket created.");
+            PrintUtils.printSuccess("Bucket created.");
             if (bucketAndPrefix.containsPrefix()) {
-                ShellUtils.printWarning("You specified a key and it was ignored.");
+                PrintUtils.printWarning("You specified a key and it was ignored.");
             }
         } catch(Exception e) {
             if (e instanceof S3Exception) {
-                ShellUtils.printError("Delete failed!");
+                PrintUtils.printError("Delete failed!");
+            }
+            throw e;
+        }
+    }
+
+    public void download(String bucketNameAndKey, String destination) {
+        try {
+            s3Client.getObject(createGetObjectRequest(bucketNameAndKey), Paths.get(destination));
+        } catch(Exception e) {
+            if (e instanceof S3Exception) {
+                PrintUtils.printError("Download failed!");
             }
             throw e;
         }
@@ -133,6 +145,22 @@ public class S3Service {
         s3Client = S3Client.builder()
                 .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.getAwsProfile()))
                 .build();
+    }
+
+    private static GetObjectRequest createGetObjectRequest(String bucketNameAndKey) {
+        BucketAndPrefix bucketAndPrefix = extractBucketAndPrefix(bucketNameAndKey);
+        GetObjectRequest.Builder reqBuilder = GetObjectRequest.builder()
+                .bucket(bucketAndPrefix.bucket);
+        if (bucketAndPrefix.containsPrefix()) {
+            reqBuilder.key(bucketAndPrefix.prefix);
+        }
+        return reqBuilder.build();
+    }
+
+    private static CreateBucketRequest createCreateBucketRequest(String bucket) {
+        BucketAndPrefix bucketAndPrefix = extractBucketAndPrefix(bucket);
+        return CreateBucketRequest
+                .builder().bucket(bucketAndPrefix.bucket).build();
     }
 
     private static ListObjectsV2Request createS3ListObjectRequest(String bucketAndKey) {

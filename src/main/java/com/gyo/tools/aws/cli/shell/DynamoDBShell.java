@@ -20,8 +20,10 @@ public class DynamoDBShell implements ApplicationListener<ProfileChangedEvent> {
     }
 
     @ShellMethod(key = "db-select", value = "Query DynamoDB table")
-    public void select(String table, @ShellOption(defaultValue = "") String where) {
-        dynamoDBService.select(table, where);
+    public void select(
+            String table, @ShellOption(defaultValue = "") String where,
+            @ShellOption(defaultValue="-1") int limit) {
+        dynamoDBService.select(table, where, limit);
     }
 
     @Override
