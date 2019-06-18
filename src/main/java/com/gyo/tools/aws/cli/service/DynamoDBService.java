@@ -2,8 +2,10 @@ package com.gyo.tools.aws.cli.service;
 
 import com.gyo.tools.aws.cli.model.CliProfileHolder;
 import com.gyo.tools.aws.cli.util.ShellUtils;
-import org.springframework.shell.table.BeanListTableModel;
-import org.springframework.shell.table.TableModel;
+import org.springframework.shell.table.ArrayTableModel;
+import org.springframework.shell.table.BorderStyle;
+import org.springframework.shell.table.Table;
+import org.springframework.shell.table.TableBuilder;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -22,8 +24,15 @@ public class DynamoDBService {
         buildDynamoDbClient();
     }
 
-    public List<String> listTables() {
-        return dynamoDbClient.listTables().tableNames();
+    public void listTables() {
+        List<String> tableNames = dynamoDbClient.listTables().tableNames();
+        String[][] data = new String[tableNames.size()][1];
+        for (int i = 0; i < tableNames.size(); i++) {
+            data[i][0] = tableNames.get(i);
+        }
+        ArrayTableModel model = new ArrayTableModel(data);
+        Table table = new TableBuilder(model).addFullBorder(BorderStyle.fancy_light).build();
+        ShellUtils.printSuccess(table.render(200));
     }
 
     private void buildDynamoDbClient() {
@@ -54,6 +63,17 @@ public class DynamoDBService {
             String row = item.keySet().stream().map(key -> item.get(key).s()).collect(Collectors.joining(","));
             ShellUtils.printSuccess(row);
         });
+        printTableSummary(response);
+    }
+
+    private void printTableSummary(ScanResponse response) {
+        printCount(response.count());
+    }
+
+    private void printCount(int count) {
+        String countString = "Count: " + count;
+        ShellUtils.printSuccess("-".repeat(countString.length()));
+        ShellUtils.printSuccess(countString);
     }
 
     private void printTableHeader(ScanResponse response) {

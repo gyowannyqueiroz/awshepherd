@@ -5,10 +5,7 @@ import com.gyo.tools.aws.cli.util.ShellUtils;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.nio.file.Path;
 import java.time.ZoneId;
@@ -78,10 +75,52 @@ public class S3Service {
 
     public void delete(String bucketAndKey) {
         BucketAndPrefix bucketAndPrefix = extractBucketAndPrefix(bucketAndKey);
-        DeleteObjectRequest req = DeleteObjectRequest.builder().bucket(bucketAndPrefix.bucket).key(bucketAndPrefix.prefix).build();
+        if (bucketAndPrefix.containsPrefix()) {
+            deleteFile(bucketAndPrefix);
+        } else {
+            deleteBucket(bucketAndPrefix.bucket);
+        }
+    }
+
+    private void deleteBucket(String bucket) {
+        DeleteBucketRequest deleteBucketRequest = DeleteBucketRequest.builder().bucket(bucket).build();
+        try {
+            s3Client.deleteBucket(deleteBucketRequest);
+            ShellUtils.printSuccess("Bucket deleted.");
+        } catch (Exception e) {
+            if (e instanceof S3Exception) {
+                ShellUtils.printError("Delete failed!");
+            }
+            throw e;
+        }
+    }
+
+    private void deleteFile(BucketAndPrefix bucketAndPrefix) {
+        DeleteObjectRequest req = DeleteObjectRequest.builder()
+                .bucket(bucketAndPrefix.bucket)
+                .key(bucketAndPrefix.prefix)
+                .build();
         try {
             s3Client.deleteObject(req);
             ShellUtils.printSuccess("File deleted.");
+        } catch (Exception e) {
+            if (e instanceof S3Exception) {
+                ShellUtils.printError("Delete failed!");
+            }
+            throw e;
+        }
+    }
+
+    public void createBucket(String bucket) {
+        BucketAndPrefix bucketAndPrefix = extractBucketAndPrefix(bucket);
+        CreateBucketRequest createBucketRequest = CreateBucketRequest
+                .builder().bucket(bucketAndPrefix.bucket).build();
+        try {
+            s3Client.createBucket(createBucketRequest);
+            ShellUtils.printSuccess("Bucket created.");
+            if (bucketAndPrefix.containsPrefix()) {
+                ShellUtils.printWarning("You specified a key and it was ignored.");
+            }
         } catch(Exception e) {
             if (e instanceof S3Exception) {
                 ShellUtils.printError("Delete failed!");

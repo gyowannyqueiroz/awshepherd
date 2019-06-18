@@ -2,7 +2,6 @@ package com.gyo.tools.aws.cli.shell;
 
 import com.gyo.tools.aws.cli.event.ProfileChangedEvent;
 import com.gyo.tools.aws.cli.service.DynamoDBService;
-import com.gyo.tools.aws.cli.util.ShellUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.shell.standard.ShellComponent;
@@ -17,8 +16,7 @@ public class DynamoDBShell implements ApplicationListener<ProfileChangedEvent> {
 
     @ShellMethod(key = "db-tables", value = "Lists all DynamoDB tables")
     public void listTables() {
-        dynamoDBService.listTables()
-                .forEach(tableName -> ShellUtils.printSuccess("\t" + tableName));
+        dynamoDBService.listTables();
     }
 
     @ShellMethod(key = "db-select", value = "Query DynamoDB table")
