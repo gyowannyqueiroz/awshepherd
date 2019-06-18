@@ -48,12 +48,12 @@ public class S3Shell implements ApplicationListener<ProfileChangedEvent> {
         s3Service.createBucket(bucket);
     }
 
-    private void resetServices() {
-        s3Service.reset();
-    }
-
     @Override
     public void onApplicationEvent(ProfileChangedEvent event) {
         resetServices();
+    }
+
+    private void resetServices() {
+        s3Service.reset();
     }
 }

@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class DynamoDBService {
+public class DynamoDBService implements AwsServiceAware {
 
     private DynamoDbClient dynamoDbClient;
 

@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class S3Service implements ServiceDescriber<S3Bucket> {
+public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofLocalizedDateTime( FormatStyle.SHORT )
                     .withZone( ZoneId.systemDefault() );
