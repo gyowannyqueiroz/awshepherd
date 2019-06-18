@@ -1,6 +1,8 @@
 package com.gyo.tools.aws.cli.service;
 
 import com.gyo.tools.aws.cli.model.CliProfileHolder;
+import com.gyo.tools.aws.cli.model.S3Bucket;
+import com.gyo.tools.aws.cli.model.S3BucketPolicy;
 import com.gyo.tools.aws.cli.util.PrintUtils;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
@@ -16,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class S3Service {
+public class S3Service implements ServiceDescriber<S3Bucket> {
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofLocalizedDateTime( FormatStyle.SHORT )
                     .withZone( ZoneId.systemDefault() );
@@ -139,6 +141,39 @@ public class S3Service {
             }
             throw e;
         }
+    }
+
+    public S3Bucket describe(String bucketName) {
+        Bucket bucket = s3Client.listBuckets().buckets().stream()
+                .filter(b -> b.name().equals(bucketName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Bucket "+bucketName+" not found"));
+
+        S3Bucket s3Bucket = new S3Bucket();
+        s3Bucket.setBucketName(bucketName);
+
+        GetBucketAccelerateConfigurationResponse accelerateConfigurationResponse =
+                s3Client.getBucketAccelerateConfiguration(GetBucketAccelerateConfigurationRequest.builder().bucket(bucketName).build());
+        if (accelerateConfigurationResponse.status() != null) {
+            s3Bucket.setAccelerateConfiguration(AccelerateConfiguration.builder().status(accelerateConfigurationResponse.status()).build());
+        }
+
+        try {
+            GetBucketPolicyResponse bucketPolicy = s3Client.getBucketPolicy(GetBucketPolicyRequest.builder().bucket(bucketName).build());
+            S3BucketPolicy s3BucketPolicy = new S3BucketPolicy();
+            s3BucketPolicy.setPolicy(bucketPolicy.policy());
+            s3Bucket.setBucketPolicy(s3BucketPolicy);
+        } catch(Exception e) {
+
+        }
+
+//        GetBucketAnalyticsConfigurationRequest analyticsConfigurationRequest =
+//                GetBucketAnalyticsConfigurationRequest.builder().bucket(bucketName).build();
+//        AnalyticsConfiguration analyticsConfiguration =
+//                s3Client.getBucketAnalyticsConfiguration(analyticsConfigurationRequest).analyticsConfiguration();
+//        s3Bucket.setBucketAnalyticsConfiguration(analyticsConfiguration);
+
+        return s3Bucket;
     }
 
     private void buildS3Client() {
