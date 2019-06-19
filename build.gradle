@@ -4,7 +4,7 @@ plugins {
 }
 
 ext {
-	awsSdkVersion = '2.5.64'
+	awsSdkVersion = '2.5.66'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -26,5 +26,6 @@ dependencies {
 	implementation "software.amazon.awssdk:cloudformation:$awsSdkVersion"
 	implementation "software.amazon.awssdk:ec2:$awsSdkVersion"
 	implementation "software.amazon.awssdk:iam:$awsSdkVersion"
+	implementation "software.amazon.awssdk:cloudwatchlogs:$awsSdkVersion"
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
