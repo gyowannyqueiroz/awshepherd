@@ -34,6 +34,6 @@ public class IamService implements AwsServiceAware {
 
     public void listUsers() {
         List<User> users = iamClient.listUsers().users();
-        PrintUtils.printTable(new IamUserTableModelTranslator(users).translate());
+        PrintUtils.printClassicTable(new IamUserTableModelTranslator(users).translate());
     }
 }

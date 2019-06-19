@@ -23,13 +23,13 @@ public class EC2Service implements AwsServiceAware {
 
     public void list() {
         List<Reservation> reservations = ec2Client.describeInstances().reservations();
-        PrintUtils.printTable(new EC2TableModelTranslator(reservations).translate());
+        PrintUtils.printClassicTable(new EC2TableModelTranslator(reservations).translate());
     }
 
     public void describe(String instanceId) {
         DescribeInstancesRequest req = DescribeInstancesRequest.builder().instanceIds(instanceId).build();
         List<Reservation> reservations = ec2Client.describeInstances(req).reservations();
-        PrintUtils.printTable(new EC2DetailsTableModelTranslator(reservations).translate());
+        PrintUtils.printClassicTable(new EC2DetailsTableModelTranslator(reservations).translate());
     }
 
     @Override

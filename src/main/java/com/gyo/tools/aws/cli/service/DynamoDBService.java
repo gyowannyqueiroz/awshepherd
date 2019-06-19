@@ -23,12 +23,12 @@ public class DynamoDBService implements AwsServiceAware {
 
     public void listTables() {
         List<String> tableNames = dynamoDbClient.listTables().tableNames();
-        PrintUtils.printTable(new SingleColumnTableModelTranslator("TABLES", tableNames).translate());
+        PrintUtils.printClassicTable(new SingleColumnTableModelTranslator("TABLES", tableNames).translate());
     }
 
     public void select(String table, String where, int limit) {
         ScanResponse response = dynamoDbClient.scan(createRequestScan(table, where, limit));
-        PrintUtils.printTable(new DynamoDBTableModelTranslator(response.items()).translate());
+        PrintUtils.printClassicTable(new DynamoDBTableModelTranslator(response.items()).translate());
         printTableSummary(response);
     }
 

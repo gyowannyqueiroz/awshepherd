@@ -27,9 +27,16 @@ public final class PrintUtils {
                 AnsiColor.YELLOW, message, AnsiColor.DEFAULT));
     }
 
-    public static void printTable(String[][] data) {
+    public static void printClassicTable(String[][] data) {
         Table table = new TableBuilder(new ArrayTableModel(data))
                 .addFullBorder(BorderStyle.fancy_light)
+                .build();
+        PrintUtils.printSuccess(table.render(200));
+    }
+
+    public static void printNoBorderTable(String[][] data) {
+        Table table = new TableBuilder(new ArrayTableModel(data))
+                .addFullBorder(BorderStyle.air)
                 .build();
         PrintUtils.printSuccess(table.render(200));
     }
