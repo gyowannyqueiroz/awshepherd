@@ -12,14 +12,16 @@ public class CloudWatchShell extends AbstractShell {
     @Autowired
     private CloudWatchLogsService cloudWatchLogsService;
 
-    @ShellMethod(key="cwl-ls", value = "Lists all the existing log groups ")
-    public void listLogGroups() {
-        cloudWatchLogsService.listLogGroups();
+    @ShellMethod(key="cwl-ls", value = "Lists all the existing log groups or filter by name by using * at the end")
+    public void listLogGroups(@ShellOption(defaultValue = "") String filterByName) {
+        cloudWatchLogsService.listLogGroups(filterByName);
     }
 
     @ShellMethod(key="cwl-logs", value = "Lists the events for the specified log group")
-    public void listLogsByGroupName(String logGroupName, @ShellOption(defaultValue = "30") int limit) {
-        cloudWatchLogsService.listLogsByGroupName(logGroupName, 30);
+    public void listLogsByGroupName(String logGroupName,
+                                    @ShellOption(defaultValue = "") String logStream,
+                                    @ShellOption(defaultValue = "30") int limit) {
+        cloudWatchLogsService.listLogsByGroupName(logGroupName, logStream, limit);
     }
 
     @Override

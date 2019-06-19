@@ -16,8 +16,8 @@ public class IamUserTableModelTranslator extends TableModelTranslator<User>{
         return List.of(
                     value.userId(),
                     value.userName(),
-                    formatLocalDateFromInstance(value.createDate()),
-                    formatLocalDateTimeFromInstance(value.passwordLastUsed())
+                    formatLocalDateFromInstant(value.createDate()),
+                    formatLocalDateTimeFromInstant(value.passwordLastUsed())
                 )
                 .toArray(new String[]{});
     }

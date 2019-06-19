@@ -29,7 +29,7 @@ public abstract class TableModelTranslator<T> {
         return values;
     }
 
-    protected String formatLocalDateTimeFromInstance(Instant instant) {
+    protected String formatLocalDateTimeFromInstant(Instant instant) {
         if (instant == null) {
             return "";
         }
@@ -37,7 +37,7 @@ public abstract class TableModelTranslator<T> {
                 .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 
-    protected String formatLocalDateFromInstance(Instant instant) {
+    protected String formatLocalDateFromInstant(Instant instant) {
         if (instant == null) {
             return "";
         }
