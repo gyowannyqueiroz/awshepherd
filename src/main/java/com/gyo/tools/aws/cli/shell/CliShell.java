@@ -28,7 +28,7 @@ public class CliShell {
         publisher.publishEvent(name);
     }
 
-    @ShellMethod(key = "profiles", value = "Lists the profiles from the AWS credentials file")
+    @ShellMethod(key = "profile-ls", value = "Lists the profiles from the AWS credentials file")
     public void listUserProfiles() throws IOException {
         CliProfileHolder.getAwsProfiles().forEach(PrintUtils::printSuccess);
     }

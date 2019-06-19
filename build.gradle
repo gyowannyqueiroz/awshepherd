@@ -3,6 +3,10 @@ plugins {
 	id 'java'
 }
 
+ext {
+	awsSdkVersion = '2.5.64'
+}
+
 apply plugin: 'io.spring.dependency-management'
 
 group = 'com.gyo.tools'
@@ -16,10 +20,11 @@ repositories {
 dependencies {
 	implementation 'org.springframework.shell:spring-shell-starter:2.0.0.RELEASE'
 	compile 'org.yaml:snakeyaml:1.23'
-	implementation 'software.amazon.awssdk:core:2.5.64'
-	implementation 'software.amazon.awssdk:s3:2.5.64'
-	implementation 'software.amazon.awssdk:dynamodb:2.5.64'
-	implementation 'software.amazon.awssdk:cloudformation:2.5.64'
-	implementation 'software.amazon.awssdk:ec2:2.5.64'
+	implementation "software.amazon.awssdk:core:$awsSdkVersion"
+	implementation "software.amazon.awssdk:s3:$awsSdkVersion"
+	implementation "software.amazon.awssdk:dynamodb:$awsSdkVersion"
+	implementation "software.amazon.awssdk:cloudformation:$awsSdkVersion"
+	implementation "software.amazon.awssdk:ec2:$awsSdkVersion"
+	implementation "software.amazon.awssdk:iam:$awsSdkVersion"
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

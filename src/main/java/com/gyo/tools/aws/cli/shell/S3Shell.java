@@ -1,10 +1,8 @@
 package com.gyo.tools.aws.cli.shell;
 
-import com.gyo.tools.aws.cli.event.ProfileChangedEvent;
 import com.gyo.tools.aws.cli.service.S3Service;
 import com.gyo.tools.aws.cli.util.PrintUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -12,7 +10,7 @@ import org.springframework.shell.standard.ShellOption;
 import static com.gyo.tools.aws.cli.util.PlaceHolderUtils.formatStringWithEnvVariables;
 
 @ShellComponent("S3 Shell")
-public class S3Shell implements ApplicationListener<ProfileChangedEvent> {
+public class S3Shell extends AbstractShell {
 
     @Autowired
     private S3Service s3Service;
@@ -49,11 +47,7 @@ public class S3Shell implements ApplicationListener<ProfileChangedEvent> {
     }
 
     @Override
-    public void onApplicationEvent(ProfileChangedEvent event) {
-        resetServices();
-    }
-
-    private void resetServices() {
+    void resetServices() {
         s3Service.reset();
     }
 }

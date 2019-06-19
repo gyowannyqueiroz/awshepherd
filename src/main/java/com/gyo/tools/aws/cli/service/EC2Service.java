@@ -1,6 +1,7 @@
 package com.gyo.tools.aws.cli.service;
 
 import com.gyo.tools.aws.cli.model.CliProfileHolder;
+import com.gyo.tools.aws.cli.translator.EC2DetailsTableModelTranslator;
 import com.gyo.tools.aws.cli.translator.EC2TableModelTranslator;
 import com.gyo.tools.aws.cli.util.PrintUtils;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,8 @@ public class EC2Service implements AwsServiceAware {
 
     public void describe(String instanceId) {
         DescribeInstancesRequest req = DescribeInstancesRequest.builder().instanceIds(instanceId).build();
-        ec2Client.describeInstances(req);
+        List<Reservation> reservations = ec2Client.describeInstances(req).reservations();
+        PrintUtils.printTable(new EC2DetailsTableModelTranslator(reservations).translate());
     }
 
     @Override

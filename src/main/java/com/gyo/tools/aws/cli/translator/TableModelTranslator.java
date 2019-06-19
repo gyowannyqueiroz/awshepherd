@@ -1,5 +1,10 @@
 package com.gyo.tools.aws.cli.translator;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public abstract class TableModelTranslator<T> {
@@ -18,6 +23,26 @@ public abstract class TableModelTranslator<T> {
             data[rowIndex++] = translateRow(value);
         }
         return data;
+    }
+
+    List<T> getValues() {
+        return values;
+    }
+
+    protected String formatLocalDateTimeFromInstance(Instant instant) {
+        if (instant == null) {
+            return "";
+        }
+        return LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault())
+                .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
+
+    protected String formatLocalDateFromInstance(Instant instant) {
+        if (instant == null) {
+            return "";
+        }
+        return LocalDate.ofInstant(instant, ZoneOffset.systemDefault())
+                .format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
 
     abstract String[] translateRow(T value);
