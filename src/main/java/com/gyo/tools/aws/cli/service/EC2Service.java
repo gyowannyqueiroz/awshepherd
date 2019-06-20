@@ -13,33 +13,24 @@ import software.amazon.awssdk.services.ec2.model.Reservation;
 import java.util.List;
 
 @Service
-public class EC2Service implements AwsServiceAware {
-
-    private Ec2Client ec2Client;
-
-    public EC2Service() {
-        reset();
-    }
+public class EC2Service extends AwsSdkClientAware<Ec2Client> {
 
     public void list() {
-        List<Reservation> reservations = ec2Client.describeInstances().reservations();
+        List<Reservation> reservations = getClient().describeInstances().reservations();
         PrintUtils.printClassicTable(new EC2TableModelTranslator(reservations).translate());
     }
 
     public void describe(String instanceId) {
         DescribeInstancesRequest req = DescribeInstancesRequest.builder().instanceIds(instanceId).build();
-        List<Reservation> reservations = ec2Client.describeInstances(req).reservations();
+        List<Reservation> reservations = getClient().describeInstances(req).reservations();
         PrintUtils.printClassicTable(new EC2DetailsTableModelTranslator(reservations).translate());
     }
 
     @Override
-    public void reset() {
-        buildEc2Client();
-    }
-
-    private void buildEc2Client() {
-        ec2Client = Ec2Client.builder()
+    Ec2Client buildClient() {
+        return Ec2Client.builder()
                 .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
                 .build();
     }
+
 }

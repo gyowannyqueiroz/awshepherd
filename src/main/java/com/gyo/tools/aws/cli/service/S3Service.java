@@ -18,25 +18,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
+public class S3Service extends AwsSdkClientAware<S3Client> implements ServiceDescriber<S3Bucket>{
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofLocalizedDateTime( FormatStyle.SHORT )
                     .withZone( ZoneId.systemDefault() );
     private static final Pattern BUCKET_PREFIX_PATTERN = Pattern.compile("(.*?)/(.*)");
-    private S3Client s3Client;
 
-    public S3Service() {
-        reset();
-    }
-
-    public void reset() {
-        buildS3Client();
+    @Override
+    S3Client buildClient() {
+        return S3Client.builder()
+                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
+                .build();
     }
 
     public void listBuckets() {
         PrintUtils.printSuccess("\nLISTING BUCKETS FOR " + CliProfileHolder.instance().getAwsProfile() + " PROFILE ");
         PrintUtils.printSuccess("----");
-        s3Client.listBuckets().buckets()
+        getClient().listBuckets().buckets()
                 .forEach(bucket ->
                     PrintUtils.printSuccess("\t" + bucket.name() + " (" + DATE_FORMATTER.format(bucket.creationDate()) + ")")
                 );
@@ -48,7 +46,7 @@ public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
             listBuckets();
         } else {
             try {
-                s3Client.listObjectsV2(createS3ListObjectRequest(bucketName))
+                getClient().listObjectsV2(createS3ListObjectRequest(bucketName))
                         .contents()
                         .forEach(item -> {
                             String fileSize = item.key().endsWith("/") ? "" : " - Size: " + item.size();
@@ -66,7 +64,7 @@ public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
 
     public void upload(String bucketName, String fileName) {
         try {
-            s3Client.putObject(createUploadRequest(bucketName), Path.of(fileName));
+            getClient().putObject(createUploadRequest(bucketName), Path.of(fileName));
             PrintUtils.printSuccess("Upload done.");
         } catch(Exception e) {
             if (e instanceof S3Exception) {
@@ -88,7 +86,7 @@ public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
     private void deleteBucket(String bucket) {
         DeleteBucketRequest deleteBucketRequest = DeleteBucketRequest.builder().bucket(bucket).build();
         try {
-            s3Client.deleteBucket(deleteBucketRequest);
+            getClient().deleteBucket(deleteBucketRequest);
             PrintUtils.printSuccess("Bucket deleted.");
         } catch (Exception e) {
             if (e instanceof S3Exception) {
@@ -104,7 +102,7 @@ public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
                 .key(bucketAndPrefix.prefix)
                 .build();
         try {
-            s3Client.deleteObject(req);
+            getClient().deleteObject(req);
             PrintUtils.printSuccess("File deleted.");
         } catch (Exception e) {
             if (e instanceof S3Exception) {
@@ -119,7 +117,7 @@ public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
         CreateBucketRequest createBucketRequest = CreateBucketRequest
                 .builder().bucket(bucketAndPrefix.bucket).build();
         try {
-            s3Client.createBucket(createBucketRequest);
+            getClient().createBucket(createBucketRequest);
             PrintUtils.printSuccess("Bucket created.");
             if (bucketAndPrefix.containsPrefix()) {
                 PrintUtils.printWarning("You specified a key and it was ignored.");
@@ -134,7 +132,7 @@ public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
 
     public void download(String bucketNameAndKey, String destination) {
         try {
-            s3Client.getObject(createGetObjectRequest(bucketNameAndKey), Paths.get(destination));
+            getClient().getObject(createGetObjectRequest(bucketNameAndKey), Paths.get(destination));
         } catch(Exception e) {
             if (e instanceof S3Exception) {
                 PrintUtils.printError("Download failed!");
@@ -144,7 +142,7 @@ public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
     }
 
     public S3Bucket describe(String bucketName) {
-        Bucket bucket = s3Client.listBuckets().buckets().stream()
+        Bucket bucket = getClient().listBuckets().buckets().stream()
                 .filter(b -> b.name().equals(bucketName))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Bucket "+bucketName+" not found"));
@@ -153,13 +151,13 @@ public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
         s3Bucket.setBucketName(bucketName);
 
         GetBucketAccelerateConfigurationResponse accelerateConfigurationResponse =
-                s3Client.getBucketAccelerateConfiguration(GetBucketAccelerateConfigurationRequest.builder().bucket(bucketName).build());
+                getClient().getBucketAccelerateConfiguration(GetBucketAccelerateConfigurationRequest.builder().bucket(bucketName).build());
         if (accelerateConfigurationResponse.status() != null) {
             s3Bucket.setAccelerateConfiguration(AccelerateConfiguration.builder().status(accelerateConfigurationResponse.status()).build());
         }
 
         try {
-            GetBucketPolicyResponse bucketPolicy = s3Client.getBucketPolicy(GetBucketPolicyRequest.builder().bucket(bucketName).build());
+            GetBucketPolicyResponse bucketPolicy = getClient().getBucketPolicy(GetBucketPolicyRequest.builder().bucket(bucketName).build());
             S3BucketPolicy s3BucketPolicy = new S3BucketPolicy();
             s3BucketPolicy.setPolicy(bucketPolicy.policy());
             s3Bucket.setBucketPolicy(s3BucketPolicy);
@@ -167,19 +165,7 @@ public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
 
         }
 
-//        GetBucketAnalyticsConfigurationRequest analyticsConfigurationRequest =
-//                GetBucketAnalyticsConfigurationRequest.builder().bucket(bucketName).build();
-//        AnalyticsConfiguration analyticsConfiguration =
-//                s3Client.getBucketAnalyticsConfiguration(analyticsConfigurationRequest).analyticsConfiguration();
-//        s3Bucket.setBucketAnalyticsConfiguration(analyticsConfiguration);
-
         return s3Bucket;
-    }
-
-    private void buildS3Client() {
-        s3Client = S3Client.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
-                .build();
     }
 
     private static GetObjectRequest createGetObjectRequest(String bucketNameAndKey) {

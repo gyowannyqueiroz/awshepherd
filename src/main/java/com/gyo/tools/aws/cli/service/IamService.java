@@ -12,28 +12,18 @@ import software.amazon.awssdk.services.iam.model.User;
 import java.util.List;
 
 @Service
-public class IamService implements AwsServiceAware {
+public class IamService extends AwsSdkClientAware<IamClient> {
 
-    private IamClient iamClient;
-
-    public IamService() {
-        reset();
+    public void listUsers() {
+        List<User> users = getClient().listUsers().users();
+        PrintUtils.printClassicTable(new IamUserTableModelTranslator(users).translate());
     }
 
     @Override
-    public void reset() {
-        buildIamClient();
-    }
-
-    private void buildIamClient() {
-        iamClient = IamClient.builder()
+    IamClient buildClient() {
+        return IamClient.builder()
                 .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
                 .region(Region.AWS_GLOBAL)
                 .build();
-    }
-
-    public void listUsers() {
-        List<User> users = iamClient.listUsers().users();
-        PrintUtils.printClassicTable(new IamUserTableModelTranslator(users).translate());
     }
 }

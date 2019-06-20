@@ -13,29 +13,17 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class DynamoDBService implements AwsServiceAware {
-
-    private DynamoDbClient dynamoDbClient;
-
-    public DynamoDBService() {
-        buildDynamoDbClient();
-    }
+public class DynamoDBService extends AwsSdkClientAware<DynamoDbClient> {
 
     public void listTables() {
-        List<String> tableNames = dynamoDbClient.listTables().tableNames();
+        List<String> tableNames = getClient().listTables().tableNames();
         PrintUtils.printClassicTable(new SingleColumnTableModelTranslator("TABLES", tableNames).translate());
     }
 
     public void select(String table, String where, int limit) {
-        ScanResponse response = dynamoDbClient.scan(createRequestScan(table, where, limit));
+        ScanResponse response = getClient().scan(createRequestScan(table, where, limit));
         PrintUtils.printClassicTable(new DynamoDBTableModelTranslator(response.items()).translate());
         printTableSummary(response);
-    }
-
-    private void buildDynamoDbClient() {
-        dynamoDbClient = DynamoDbClient.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
-                .build();
     }
 
     private ScanRequest createRequestScan(String table, String where, int limit) {
@@ -61,7 +49,10 @@ public class DynamoDBService implements AwsServiceAware {
         PrintUtils.printSuccess(countString);
     }
 
-    public void reset() {
-        buildDynamoDbClient();
+    @Override
+    DynamoDbClient buildClient() {
+        return DynamoDbClient.builder()
+                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
+                .build();
     }
 }

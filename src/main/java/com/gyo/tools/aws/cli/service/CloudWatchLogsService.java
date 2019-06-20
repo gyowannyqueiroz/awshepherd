@@ -16,21 +16,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class CloudWatchLogsService implements AwsServiceAware {
-
-    private CloudWatchLogsClient cloudWathLogsClient;
-
-    public CloudWatchLogsService() {
-        reset();
-    }
+public class CloudWatchLogsService extends AwsSdkClientAware<CloudWatchLogsClient> {
 
     @Override
-    public void reset() {
-        buildCloudWatchClient();
+    public CloudWatchLogsClient buildClient() {
+        return CloudWatchLogsClient.builder()
+                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
+                .build();
     }
 
     public void listLogGroups(String filterByName) {
-        List<LogGroup> logGroups = cloudWathLogsClient.describeLogGroups()
+        List<LogGroup> logGroups = getClient().describeLogGroups()
                 .logGroups();
         List<HashMap.SimpleEntry<LogGroup, List<LogStream>>> map = logGroups.stream()
                 .map(lg -> new HashMap.SimpleEntry<LogGroup, List<LogStream>>(lg, getLogStreamsByLogGroup(lg.logGroupName())))
@@ -49,7 +45,7 @@ public class CloudWatchLogsService implements AwsServiceAware {
                 .logGroupName(logGroupName)
                 .orderBy(OrderBy.LAST_EVENT_TIME)
                 .build();
-        return cloudWathLogsClient.describeLogStreams(req).logStreams();
+        return getClient().describeLogStreams(req).logStreams();
     }
 
     public void listLogsByGroupName(String logGroupName, String logStream, int limit) {
@@ -66,7 +62,7 @@ public class CloudWatchLogsService implements AwsServiceAware {
                 .logStreamName(logStream)
                 .limit(limit)
                 .build();
-        List<OutputLogEvent> events = cloudWathLogsClient.getLogEvents(req).events();
+        List<OutputLogEvent> events = getClient().getLogEvents(req).events();
         PrintUtils.printNoBorderTable(new CloudWatchLogsTableModelTranslator(events).translate());
     }
 
@@ -75,9 +71,4 @@ public class CloudWatchLogsService implements AwsServiceAware {
         return logStreams.get(logStreams.size()-1);
     }
 
-    private void buildCloudWatchClient() {
-        cloudWathLogsClient = CloudWatchLogsClient.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
-                .build();
-    }
 }
