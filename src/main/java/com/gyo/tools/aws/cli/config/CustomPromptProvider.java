@@ -11,7 +11,7 @@ public class CustomPromptProvider implements PromptProvider {
 
     @Override
     public AttributedString getPrompt() {
-            return new AttributedString(CliProfileHolder.getAwsProfile() + ":>",
+            return new AttributedString(CliProfileHolder.instance().getAwsProfile() + ":>",
                     AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
     }
 

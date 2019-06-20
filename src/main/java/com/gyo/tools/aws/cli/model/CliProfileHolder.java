@@ -7,27 +7,43 @@ import java.util.Map;
 import java.util.Set;
 
 public final class CliProfileHolder {
-    private static String awsProfile = "default";
-    private static Set<String> awsProfiles = ProfileFile.defaultProfileFile().profiles().keySet();
+    private static CliProfileHolder instance;
+    private String awsProfile = "default";
+    private Set<String> awsProfiles;
     private static Map<String,String> ENV_MAP = new HashMap<>();
 
-    public static String getAwsProfile() {
+    public static CliProfileHolder instance() {
+        if (instance == null) {
+            instance = new CliProfileHolder();
+        }
+        return instance;
+    }
+
+    private CliProfileHolder(){
+        loadAwsProfiles();
+    }
+
+    public String getAwsProfile() {
         return awsProfile;
     }
 
-    public static void setAwsProfile(String awsProfile) {
-        CliProfileHolder.awsProfile = awsProfile;
+    public void setAwsProfile(String awsProfile) {
+        this.awsProfile = awsProfile;
     }
 
-    public static Set<String> getAwsProfiles() {
+    public Set<String> getAwsProfiles() {
         return awsProfiles;
     }
 
-    public static void putEnv(String key, String value) {
+    public void putEnv(String key, String value) {
         ENV_MAP.put(key, value);
     }
 
-    public static Map<String,String> getEnvMap() {
+    public Map<String,String> getEnvMap() {
         return Map.copyOf(ENV_MAP);
+    }
+
+    public void loadAwsProfiles() {
+        awsProfiles = ProfileFile.defaultProfileFile().profiles().keySet();
     }
 }

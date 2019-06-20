@@ -39,7 +39,7 @@ public class EC2Service implements AwsServiceAware {
 
     private void buildEc2Client() {
         ec2Client = Ec2Client.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.getAwsProfile()))
+                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
                 .build();
     }
 }

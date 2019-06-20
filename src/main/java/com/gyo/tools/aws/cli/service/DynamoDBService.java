@@ -34,7 +34,7 @@ public class DynamoDBService implements AwsServiceAware {
 
     private void buildDynamoDbClient() {
         dynamoDbClient = DynamoDbClient.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.getAwsProfile()))
+                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
                 .build();
     }
 

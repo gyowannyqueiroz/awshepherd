@@ -27,7 +27,7 @@ public class IamService implements AwsServiceAware {
 
     private void buildIamClient() {
         iamClient = IamClient.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.getAwsProfile()))
+                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
                 .region(Region.AWS_GLOBAL)
                 .build();
     }

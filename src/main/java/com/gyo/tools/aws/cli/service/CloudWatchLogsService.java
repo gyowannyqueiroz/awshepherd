@@ -77,7 +77,7 @@ public class CloudWatchLogsService implements AwsServiceAware {
 
     private void buildCloudWatchClient() {
         cloudWathLogsClient = CloudWatchLogsClient.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.getAwsProfile()))
+                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
                 .build();
     }
 }

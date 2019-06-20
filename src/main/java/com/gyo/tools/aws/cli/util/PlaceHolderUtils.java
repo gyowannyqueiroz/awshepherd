@@ -9,7 +9,7 @@ public final class PlaceHolderUtils {
 
     public static String formatStringWithEnvVariables(final String value) {
         Properties envProps = new Properties();
-        envProps.putAll(CliProfileHolder.getEnvMap());
+        envProps.putAll(CliProfileHolder.instance().getEnvMap());
         return new PropertyPlaceholderHelper("${", "}").replacePlaceholders(value, envProps);
     }
 }

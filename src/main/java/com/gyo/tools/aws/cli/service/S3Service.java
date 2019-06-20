@@ -34,7 +34,7 @@ public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
     }
 
     public void listBuckets() {
-        PrintUtils.printSuccess("\nLISTING BUCKETS FOR " + CliProfileHolder.getAwsProfile() + " PROFILE ");
+        PrintUtils.printSuccess("\nLISTING BUCKETS FOR " + CliProfileHolder.instance().getAwsProfile() + " PROFILE ");
         PrintUtils.printSuccess("----");
         s3Client.listBuckets().buckets()
                 .forEach(bucket ->
@@ -178,7 +178,7 @@ public class S3Service implements ServiceDescriber<S3Bucket>, AwsServiceAware {
 
     private void buildS3Client() {
         s3Client = S3Client.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.getAwsProfile()))
+                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
                 .build();
     }
 
