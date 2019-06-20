@@ -1,15 +1,16 @@
 package com.gyo.tools.aws.cli.model;
 
+import com.gyo.tools.aws.cli.util.PrintUtils;
 import software.amazon.awssdk.profiles.ProfileFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public final class CliProfileHolder {
     private static CliProfileHolder instance;
-    private String awsProfile = "default";
-    private Set<String> awsProfiles;
+    private String awsProfile;
+    private List<String> awsProfiles;
     private static Map<String,String> ENV_MAP = new HashMap<>();
 
     public static CliProfileHolder instance() {
@@ -31,7 +32,7 @@ public final class CliProfileHolder {
         this.awsProfile = awsProfile;
     }
 
-    public Set<String> getAwsProfiles() {
+    public List<String> getAwsProfiles() {
         return awsProfiles;
     }
 
@@ -44,6 +45,11 @@ public final class CliProfileHolder {
     }
 
     public void loadAwsProfiles() {
-        awsProfiles = ProfileFile.defaultProfileFile().profiles().keySet();
+        awsProfiles = List.copyOf(ProfileFile.defaultProfileFile().profiles().keySet());
+        if (awsProfile == null && !awsProfiles.isEmpty()) {
+            awsProfile = awsProfiles.get(0);
+        } else {
+            PrintUtils.printWarning("There are no profiles configured in your credentials file");
+        }
     }
 }
