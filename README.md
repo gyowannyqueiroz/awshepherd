@@ -8,6 +8,7 @@
                                    | |
                                    |_|
 ```
+[![Build Status](https://travis-ci.com/gyowannyqueiroz/awshepherd.svg?branch=master)](https://travis-ci.com/gyowannyqueiroz/awshepherd)
 
 ### What is it?
 This is just another client made with Java and Spring Shell framework on top of the AWS Java SDK that aims to automate trivial
