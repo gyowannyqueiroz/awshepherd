@@ -15,7 +15,7 @@ AWS tasks and to save some time on typing all the commands and flags available i
 
 ### Built-in Functionalities
 
-- Ability to list the available profiles from your AWS credentials file. Actually it just uses AWS SDK existing functionality but it's still a bit quicker than listing the credentials file content.
+- Ability to list the available profiles from your AWS credentials file. Actually it just uses AWS SDK existing functionality.
 - Profile switch. You set the profile and execute as many commands you need. The current profile is displayed as part of the prompt.
 - Environment variables. You can set variables and then use place holders instead of ctrl+c & ctrl+v. e.g: 
 
