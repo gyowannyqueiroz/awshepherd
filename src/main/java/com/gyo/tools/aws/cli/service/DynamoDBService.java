@@ -28,7 +28,7 @@ public class DynamoDBService extends AwsSdkClientAware<DynamoDbClient> {
 
     private ScanRequest createRequestScan(String table, String where, int limit) {
         ScanRequest.Builder reqBuilder = ScanRequest.builder().tableName(table);
-        if (where != null && !where.isBlank()) {
+        if (where != null && !where.isEmpty()) {
             String[] whereSplit = where.split("=");
             reqBuilder.scanFilter(Map.of(whereSplit[0],
                     Condition.builder().comparisonOperator(ComparisonOperator.EQ)

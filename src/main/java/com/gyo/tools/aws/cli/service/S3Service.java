@@ -42,7 +42,7 @@ public class S3Service extends AwsSdkClientAware<S3Client> implements ServiceDes
     }
 
     public void listBucketContent(String bucketName) {
-        if (bucketName == null || bucketName.isBlank()) {
+        if (bucketName == null || bucketName.isEmpty()) {
             listBuckets();
         } else {
             try {
@@ -222,7 +222,7 @@ public class S3Service extends AwsSdkClientAware<S3Client> implements ServiceDes
         String prefix;
 
         boolean containsPrefix() {
-            return prefix != null && !prefix.isBlank();
+            return prefix != null && !prefix.isEmpty();
         }
     }
 }

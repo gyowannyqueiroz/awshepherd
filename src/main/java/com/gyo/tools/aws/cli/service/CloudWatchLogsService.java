@@ -33,7 +33,7 @@ public class CloudWatchLogsService extends AwsSdkClientAware<CloudWatchLogsClien
                 .collect(Collectors.toList());
 
         Stream<AbstractMap.SimpleEntry<LogGroup, List<LogStream>>> stream = map.stream();
-        if (filterByName != null && !filterByName.isBlank()) {
+        if (filterByName != null && !filterByName.isEmpty()) {
             stream = stream.filter(lg -> lg.getKey().logGroupName().startsWith(filterByName));
         }
         List<AbstractMap.SimpleEntry<LogGroup, List<LogStream>>> groupsAndStreams = stream.collect(Collectors.toList());
@@ -49,7 +49,7 @@ public class CloudWatchLogsService extends AwsSdkClientAware<CloudWatchLogsClien
     }
 
     public void listLogsByGroupName(String logGroupName, String logStream, int limit) {
-        if (logStream == null || logStream.isBlank()) {
+        if (logStream == null || logStream.isEmpty()) {
             LogStream latestLogStream = getLatestLogStream(logGroupName);
             if (latestLogStream == null) {
                 PrintUtils.printWarning("No events found.");

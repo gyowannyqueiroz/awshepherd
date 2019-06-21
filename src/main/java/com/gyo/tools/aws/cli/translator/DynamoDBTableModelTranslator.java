@@ -37,10 +37,10 @@ public class DynamoDBTableModelTranslator extends TableModelTranslator<Map<Strin
 
     private String getStringFromDynamoDBValue(AttributeValue colValue) {
         if (colValue != null) {
-            if (colValue.s() != null && !colValue.s().isBlank()) {
+            if (colValue.s() != null && !colValue.s().isEmpty()) {
                 return colValue.s();
             }
-            if (colValue.n() != null && !colValue.n().isBlank()) {
+            if (colValue.n() != null && !colValue.n().isEmpty()) {
                 return colValue.n();
             }
             if (colValue.bool() != null) {
