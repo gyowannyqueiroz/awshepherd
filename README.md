@@ -12,7 +12,7 @@
 
 ### What is it?
 This is just another client made with Java and Spring Shell framework on top of the AWS Java SDK that aims to automate trivial
-AWS tasks and to save some time on typing all the commands and flags available in the oficial AWS CLI.
+AWS tasks and to save some time on typing a few of the commands and flags available in the official AWS CLI.
 
 ### Built-in Functionalities
 
@@ -27,7 +27,7 @@ default:>env S3_SOURCE_BUCKET=my-bucket
 ``` 
 
 
-then use as place holder for your command:
+then use as a place holder for your command:
 
 ```s3-pull ${S3_SOURCE_BUCKET}/myfile.txt ${S3_DOWNLOAD_FOLDER}``` 
 
