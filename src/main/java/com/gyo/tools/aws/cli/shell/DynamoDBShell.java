@@ -1,5 +1,6 @@
 package com.gyo.tools.aws.cli.shell;
 
+import com.gyo.tools.aws.cli.model.CliEnvironment;
 import com.gyo.tools.aws.cli.service.DynamoDBService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
@@ -9,8 +10,13 @@ import org.springframework.shell.standard.ShellOption;
 @ShellComponent
 public class DynamoDBShell extends AbstractShell {
 
-    @Autowired
     private DynamoDBService dynamoDBService;
+
+    @Autowired
+    public DynamoDBShell(DynamoDBService dynamoDBService, CliEnvironment cliEnvironment) {
+        super(cliEnvironment);
+        this.dynamoDBService = dynamoDBService;
+    }
 
     @ShellMethod(key = "db-ls", value = "Lists all DynamoDB tables")
     public void listTables() {

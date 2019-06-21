@@ -1,26 +1,22 @@
 package com.gyo.tools.aws.cli.model;
 
 import com.gyo.tools.aws.cli.util.PrintUtils;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import software.amazon.awssdk.profiles.ProfileFile;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class CliProfileHolder {
-    private static CliProfileHolder instance;
+@Component
+@Scope("singleton")
+public class CliEnvironment {
     private String awsProfile;
     private List<String> awsProfiles;
-    private static Map<String,String> ENV_MAP = new HashMap<>();
+    private Map<String,String> envVarsMap = new HashMap<>();
 
-    public static CliProfileHolder instance() {
-        if (instance == null) {
-            instance = new CliProfileHolder();
-        }
-        return instance;
-    }
-
-    private CliProfileHolder(){
+    public CliEnvironment(){
         loadAwsProfiles();
     }
 
@@ -36,12 +32,16 @@ public final class CliProfileHolder {
         return awsProfiles;
     }
 
+    public boolean profileExists(String profile) {
+        return awsProfiles.contains(profile);
+    }
+
     public void putEnv(String key, String value) {
-        ENV_MAP.put(key, value);
+        envVarsMap.put(key, value);
     }
 
     public Map<String,String> getEnvMap() {
-        return Map.copyOf(ENV_MAP);
+        return Map.copyOf(envVarsMap);
     }
 
     public void loadAwsProfiles() {

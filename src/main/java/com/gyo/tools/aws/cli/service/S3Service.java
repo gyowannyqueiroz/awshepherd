@@ -1,9 +1,10 @@
 package com.gyo.tools.aws.cli.service;
 
-import com.gyo.tools.aws.cli.model.CliProfileHolder;
+import com.gyo.tools.aws.cli.model.CliEnvironment;
 import com.gyo.tools.aws.cli.model.S3Bucket;
 import com.gyo.tools.aws.cli.model.S3BucketPolicy;
 import com.gyo.tools.aws.cli.util.PrintUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -24,15 +25,20 @@ public class S3Service extends AwsSdkClientAware<S3Client> implements ServiceDes
                     .withZone( ZoneId.systemDefault() );
     private static final Pattern BUCKET_PREFIX_PATTERN = Pattern.compile("(.*?)/(.*)");
 
+    @Autowired
+    public S3Service(CliEnvironment cliEnvironment) {
+        super(cliEnvironment);
+    }
+
     @Override
-    S3Client buildClient() {
+    S3Client buildClient(CliEnvironment env) {
         return S3Client.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
+                .credentialsProvider(ProfileCredentialsProvider.create(env.getAwsProfile()))
                 .build();
     }
 
     public void listBuckets() {
-        PrintUtils.printSuccess("\nLISTING BUCKETS FOR " + CliProfileHolder.instance().getAwsProfile() + " PROFILE ");
+        PrintUtils.printSuccess("\nLISTING BUCKETS FOR " + getCliEnvironment().getAwsProfile() + " PROFILE ");
         PrintUtils.printSuccess("----");
         getClient().listBuckets().buckets()
                 .forEach(bucket ->

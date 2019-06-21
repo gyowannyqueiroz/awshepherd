@@ -1,9 +1,10 @@
 package com.gyo.tools.aws.cli.service;
 
-import com.gyo.tools.aws.cli.model.CliProfileHolder;
+import com.gyo.tools.aws.cli.model.CliEnvironment;
 import com.gyo.tools.aws.cli.translator.EC2DetailsTableModelTranslator;
 import com.gyo.tools.aws.cli.translator.EC2TableModelTranslator;
 import com.gyo.tools.aws.cli.util.PrintUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -14,6 +15,11 @@ import java.util.List;
 
 @Service
 public class EC2Service extends AwsSdkClientAware<Ec2Client> {
+
+    @Autowired
+    public EC2Service(CliEnvironment cliEnvironment) {
+        super(cliEnvironment);
+    }
 
     public void list() {
         List<Reservation> reservations = getClient().describeInstances().reservations();
@@ -27,9 +33,9 @@ public class EC2Service extends AwsSdkClientAware<Ec2Client> {
     }
 
     @Override
-    Ec2Client buildClient() {
+    Ec2Client buildClient(CliEnvironment env) {
         return Ec2Client.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
+                .credentialsProvider(ProfileCredentialsProvider.create(env.getAwsProfile()))
                 .build();
     }
 

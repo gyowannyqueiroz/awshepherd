@@ -1,5 +1,6 @@
 package com.gyo.tools.aws.cli.shell;
 
+import com.gyo.tools.aws.cli.model.CliEnvironment;
 import com.gyo.tools.aws.cli.service.S3Service;
 import com.gyo.tools.aws.cli.util.PrintUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,13 +8,16 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
-import static com.gyo.tools.aws.cli.util.PlaceHolderUtils.formatStringWithEnvVariables;
-
 @ShellComponent("S3 Shell")
 public class S3Shell extends AbstractShell {
 
     @Autowired
     private S3Service s3Service;
+
+    @Autowired
+    public S3Shell(CliEnvironment cliEnvironment) {
+        super(cliEnvironment);
+    }
 
     @ShellMethod(key = "s3-ls", value = "List buckets and bucket contents")
     public void list(@ShellOption(defaultValue = "",

@@ -1,9 +1,10 @@
 package com.gyo.tools.aws.cli.service;
 
-import com.gyo.tools.aws.cli.model.CliProfileHolder;
+import com.gyo.tools.aws.cli.model.CliEnvironment;
 import com.gyo.tools.aws.cli.translator.DynamoDBTableModelTranslator;
 import com.gyo.tools.aws.cli.translator.SingleColumnTableModelTranslator;
 import com.gyo.tools.aws.cli.util.PrintUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -14,6 +15,11 @@ import java.util.Map;
 
 @Service
 public class DynamoDBService extends AwsSdkClientAware<DynamoDbClient> {
+
+    @Autowired
+    public DynamoDBService(CliEnvironment cliEnvironment) {
+        super(cliEnvironment);
+    }
 
     public void listTables() {
         List<String> tableNames = getClient().listTables().tableNames();
@@ -50,9 +56,9 @@ public class DynamoDBService extends AwsSdkClientAware<DynamoDbClient> {
     }
 
     @Override
-    DynamoDbClient buildClient() {
+    DynamoDbClient buildClient(CliEnvironment env) {
         return DynamoDbClient.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
+                .credentialsProvider(ProfileCredentialsProvider.create(env.getAwsProfile()))
                 .build();
     }
 }

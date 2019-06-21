@@ -1,9 +1,10 @@
 package com.gyo.tools.aws.cli.service;
 
-import com.gyo.tools.aws.cli.model.CliProfileHolder;
+import com.gyo.tools.aws.cli.model.CliEnvironment;
 import com.gyo.tools.aws.cli.translator.CloudWatchLogGroupsTableModelTranslator;
 import com.gyo.tools.aws.cli.translator.CloudWatchLogsTableModelTranslator;
 import com.gyo.tools.aws.cli.util.PrintUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
@@ -18,10 +19,15 @@ import java.util.stream.Stream;
 @Service
 public class CloudWatchLogsService extends AwsSdkClientAware<CloudWatchLogsClient> {
 
+    @Autowired
+    public CloudWatchLogsService(CliEnvironment cliEnvironment) {
+        super(cliEnvironment);
+    }
+
     @Override
-    public CloudWatchLogsClient buildClient() {
+    public CloudWatchLogsClient buildClient(CliEnvironment env) {
         return CloudWatchLogsClient.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(CliProfileHolder.instance().getAwsProfile()))
+                .credentialsProvider(ProfileCredentialsProvider.create(env.getAwsProfile()))
                 .build();
     }
 

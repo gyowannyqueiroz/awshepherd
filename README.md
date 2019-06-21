@@ -34,4 +34,6 @@ then use as a place holder for your command:
 
 - Run the ```help``` command to get a list of the available commands and ```help <command>``` for command details
 
+### Observation
 
+This project has been initially created for experimentation / prototyping, so now that I published the project in Git hub I'm writing unit tests for it. 
