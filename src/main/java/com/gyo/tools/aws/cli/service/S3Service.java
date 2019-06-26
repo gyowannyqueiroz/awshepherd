@@ -1,8 +1,6 @@
 package com.gyo.tools.aws.cli.service;
 
 import com.gyo.tools.aws.cli.model.CliEnvironment;
-import com.gyo.tools.aws.cli.model.S3Bucket;
-import com.gyo.tools.aws.cli.model.S3BucketPolicy;
 import com.gyo.tools.aws.cli.util.PrintUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class S3Service extends AwsSdkClientAware<S3Client> implements ServiceDescriber<S3Bucket>{
+public class S3Service extends AwsSdkClientAware<S3Client> {
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofLocalizedDateTime( FormatStyle.SHORT )
                     .withZone( ZoneId.systemDefault() );
@@ -145,33 +143,6 @@ public class S3Service extends AwsSdkClientAware<S3Client> implements ServiceDes
             }
             throw e;
         }
-    }
-
-    public S3Bucket describe(String bucketName) {
-        Bucket bucket = getClient().listBuckets().buckets().stream()
-                .filter(b -> b.name().equals(bucketName))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Bucket "+bucketName+" not found"));
-
-        S3Bucket s3Bucket = new S3Bucket();
-        s3Bucket.setBucketName(bucketName);
-
-        GetBucketAccelerateConfigurationResponse accelerateConfigurationResponse =
-                getClient().getBucketAccelerateConfiguration(GetBucketAccelerateConfigurationRequest.builder().bucket(bucketName).build());
-        if (accelerateConfigurationResponse.status() != null) {
-            s3Bucket.setAccelerateConfiguration(AccelerateConfiguration.builder().status(accelerateConfigurationResponse.status()).build());
-        }
-
-        try {
-            GetBucketPolicyResponse bucketPolicy = getClient().getBucketPolicy(GetBucketPolicyRequest.builder().bucket(bucketName).build());
-            S3BucketPolicy s3BucketPolicy = new S3BucketPolicy();
-            s3BucketPolicy.setPolicy(bucketPolicy.policy());
-            s3Bucket.setBucketPolicy(s3BucketPolicy);
-        } catch(Exception e) {
-
-        }
-
-        return s3Bucket;
     }
 
     private static GetObjectRequest createGetObjectRequest(String bucketNameAndKey) {
